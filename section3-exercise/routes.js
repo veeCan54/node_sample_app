@@ -3,7 +3,7 @@
 const requestHandler = (req, resp) => {
     const method = req.method;
     const url = req.url;    
-    if(url === '/users' && method === 'POST'){
+    if(url === '/users'){
         resp.write('<html>');
         resp.write('<head><title> Routes User page </title> </head>');
         resp.write('<body>Users Page');
@@ -12,10 +12,25 @@ const requestHandler = (req, resp) => {
         resp.write('</html>');
         return resp.end();
     } 
+    if(url === '/create-user' && method === 'POST'){
+        const input = [];
+        req.on('data', (chunk) => {
+            console.log(chunk);
+            input.push(chunk);
+        });
+        return req.on('end', () => {
+            const parsedBody = Buffer.concat(input).toString();
+            const userName = parsedBody.split('=')[1];
+            console.log(userName);
+            resp.statusCode = 302;
+            resp.setHeader('Location', '/');
+            return resp.end();
+        });        
+    }
     resp.setHeader('Content-type', 'text/html');
     resp.write('<html>');
     resp.write('<head><title> This is Routes Exercise 1 </title> </head>');
-    resp.write('<body><form method="post" action="/users"><button name="users" type="Submit">Display Users</button></form></body>');
+    resp.write('<body><form method="post" action="/create-user"><input type="text" name="user"/><button type="Submit">Add Users</button></form></body>');
     resp.write('</html>');
     return resp.end();
 
